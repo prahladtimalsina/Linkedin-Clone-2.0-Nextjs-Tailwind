@@ -8,9 +8,18 @@ import {
   VideoCameraIcon,
   ArrowRightIcon,
 } from "@heroicons/react/outline";
-function Home() {
+import Head from "next/head";
+import { getProviders, signIn } from "next-auth/react";
+function Home({ providers }) {
+ 
   return (
     <div className="space-y-10 relative">
+      <Head>
+        <title>Linkedin-2.0</title>
+        <meta name="description" content="Linkedin login" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <header className="flex justify-around items-center space-y-3 ">
         <div className="relative w-36 h-10  ">
           <Image src="https://rb.gy/vtbzlp" layout="fill" objectFit="contain" />
@@ -21,18 +30,23 @@ function Home() {
             <HeaderLink Icon={UserGroupIcon} title="People" />
             <HeaderLink Icon={VideoCameraIcon} title="Learning" />
             <HeaderLink Icon={BriefcaseIcon} title="Jobs" />
-           
+          </div>
           
-          </div>
-          <div className="pl-4">
-            <button
-              className="text-blue-700 font-semibold 
-          border border-blue-700 px-5 py-1.5 transition hover:border-2
-          rounded-full"
-            >
-              Sign In
-            </button>
-          </div>
+
+          {Object.values(providers).map(provider => (
+            <div key={provider.name}>
+              <div className="pl-4">
+                <button
+                  className="text-blue-700 font-semibold 
+                border border-blue-700 px-5 py-1.5 transition hover:border-2
+                rounded-full"
+                  onClick={() => signIn(provider.id, { callbackUrl: "/" })}
+                >
+                  Sign In
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </header>
       <main className="flex flex-col xl:flex-row items-center max-w-screen-lg mx-auto">
@@ -64,3 +78,13 @@ function Home() {
 }
 
 export default Home;
+
+export async function getServerSideProps(context) {
+  const providers = await getProviders();
+
+  return {
+    props: {
+      providers,
+    },
+  };
+}
